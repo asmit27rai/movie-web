@@ -11,9 +11,9 @@ import { cn } from "@/lib/utils";
 
 const Navbar = () => {
   return (
-    <nav className="bg-dark-900 p-4 m-4 border border-white rounded-lg shadow-xl">
+    <nav className="bg-dark-900 p-2 m-4 border border-white rounded-lg shadow-xl md:p-6 lg:p-4 xl:p-4">
       <NavigationMenu>
-        <NavigationMenuList className="flex items-center space-x-6 md:space-x-8">
+        <NavigationMenuList className="flex items-center space-x-6 md:space-x-8 lg:space-x-10 xl:space-x-12">
           <NavigationMenuItem>
             <NavigationMenuLink
               className="text-white text-lg font-semibold hover:text-orange-500 transition duration-300"
@@ -27,7 +27,7 @@ const Navbar = () => {
               Movies
             </NavigationMenuTrigger>
             <NavigationMenuContent>
-              <ul className="grid gap-4 p-4 md:w-[500px] lg:w-[600px] bg-dark-800 rounded-md shadow-lg">
+              <ul className="grid gap-4 p-4 md:w-[500px] lg:w-[600px] xl:w-[700px] bg-dark-800 rounded-md shadow-lg">
                 <ListItem href="/movies/now-playing" title="Now Playing">
                   Check out the latest movies playing in our cinema.
                 </ListItem>
@@ -45,7 +45,7 @@ const Navbar = () => {
               Showtimes
             </NavigationMenuTrigger>
             <NavigationMenuContent>
-              <ul className="grid gap-4 p-6 md:w-[500px] lg:w-[600px] bg-dark-800 rounded-md shadow-lg">
+              <ul className="grid gap-4 p-6 md:w-[500px] lg:w-[600px] xl:w-[700px] bg-dark-800 rounded-md shadow-lg">
                 <li className="row-span-3">
                   <NavigationMenuLink asChild>
                     <a
@@ -81,7 +81,7 @@ const Navbar = () => {
 const ListItem = React.forwardRef<
   React.ElementRef<"a">,
   React.ComponentPropsWithoutRef<"a">
->(({ className, title, children, ...props }, ref) => {
+>(({ className, title, children,...props }, ref) => {
   return (
     <li>
       <NavigationMenuLink asChild>
