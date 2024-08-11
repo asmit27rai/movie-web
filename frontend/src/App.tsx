@@ -1,12 +1,13 @@
-import { SignedIn, SignedOut, SignInButton } from "@clerk/clerk-react";
+import { SignedIn, SignedOut } from "@clerk/clerk-react";
 import Home from "./components/Home";
 import Navbar from "./components/Navbar";
+import SigninPage from "./components/SigninPage";
 
 function App() {
   return (
     <header>
     <SignedOut>
-      <SignInButton />
+      <SigninPage />
     </SignedOut>
     <SignedIn>
     <div className="relative bg-black flex flex-col items-center">

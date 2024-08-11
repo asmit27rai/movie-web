@@ -8,6 +8,7 @@ import {
   NavigationMenuContent,
 } from "./ui/navigation-menu";
 import { cn } from "@/lib/utils";
+import { UserButton } from "@clerk/clerk-react";
 
 const Navbar = () => {
   return (
@@ -74,6 +75,7 @@ const Navbar = () => {
           </NavigationMenuItem>
         </NavigationMenuList>
       </NavigationMenu>
+      <UserButton />
     </nav>
   );
 };
