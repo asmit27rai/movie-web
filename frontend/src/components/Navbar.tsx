@@ -1,4 +1,5 @@
-import React from "react";
+// src/components/Navbar.tsx
+import React from 'react';
 import {
   NavigationMenu,
   NavigationMenuItem,
@@ -6,9 +7,10 @@ import {
   NavigationMenuList,
   NavigationMenuTrigger,
   NavigationMenuContent,
-} from "./ui/navigation-menu";
-import { cn } from "@/lib/utils";
-import { UserButton } from "@clerk/clerk-react";
+} from './ui/navigation-menu';
+import { cn } from '@/lib/utils';
+import { UserButton } from '@clerk/clerk-react';
+import BookingsPage from './Bookings';
 
 const Navbar = () => {
   return (
@@ -43,26 +45,10 @@ const Navbar = () => {
           </NavigationMenuItem>
           <NavigationMenuItem>
             <NavigationMenuTrigger className="text-lg font-semibold hover:bg-gray-700 hover:text-yellow-300 transition duration-300 px-4 py-2 rounded">
-              Showtimes
+              Bookings
             </NavigationMenuTrigger>
-            <NavigationMenuContent>
-              <ul className="grid gap-4 p-6 md:w-[500px] lg:w-[600px] xl:w-[700px] bg-dark-800 rounded-md shadow-lg">
-                <li className="row-span-3">
-                  <NavigationMenuLink asChild>
-                    <a
-                      className="flex h-full w-full select-none flex-col justify-end rounded-md bg-dark-700 p-6 no-underline outline-none focus:shadow-md transition duration-300"
-                      href="/showtimes"
-                    >
-                      <div className="mb-2 mt-4 text-2xl font-semibold text-white">
-                        Get Showtimes
-                      </div>
-                      <p className="text-sm leading-tight text-gray-300">
-                        Find out when your favorite movie is playing.
-                      </p>
-                    </a>
-                  </NavigationMenuLink>
-                </li>
-              </ul>
+            <NavigationMenuContent className="max-h-[500px] overflow-y-auto">
+              <BookingsPage />
             </NavigationMenuContent>
           </NavigationMenuItem>
           <NavigationMenuItem>
@@ -73,24 +59,24 @@ const Navbar = () => {
               Contact Us
             </NavigationMenuLink>
           </NavigationMenuItem>
+          <UserButton />
         </NavigationMenuList>
       </NavigationMenu>
-      <UserButton />
     </nav>
   );
 };
 
 const ListItem = React.forwardRef<
-  React.ElementRef<"a">,
-  React.ComponentPropsWithoutRef<"a">
->(({ className, title, children,...props }, ref) => {
+  React.ElementRef<'a'>,
+  React.ComponentPropsWithoutRef<'a'>
+>(({ className, title, children, ...props }, ref) => {
   return (
     <li>
       <NavigationMenuLink asChild>
         <a
           ref={ref}
           className={cn(
-            "block select-none space-y-2 rounded-md p-4 leading-none no-underline outline-none transition-colors hover:bg-gray-700 hover:text-white focus:bg-gray-700 focus:text-white",
+            'block select-none space-y-2 rounded-md p-4 leading-none no-underline outline-none transition-colors hover:bg-gray-700 hover:text-white focus:bg-gray-700 focus:text-white',
             className
           )}
           {...props}
@@ -106,6 +92,6 @@ const ListItem = React.forwardRef<
     </li>
   );
 });
-ListItem.displayName = "ListItem";
+ListItem.displayName = 'ListItem';
 
 export default Navbar;
