@@ -4,6 +4,7 @@ import Home from "./components/Home";
 import Navbar from "./components/Navbar";
 import SigninPage from "./components/SigninPage";
 import ContactUs from "./components/ContactUs";
+import SeatBooking from "./components/SeatBooking";
 
 function App() {
   return (
@@ -18,6 +19,7 @@ function App() {
             <Routes>
               <Route path="/" element={<Home />} />
               <Route path="/contact" element={<ContactUs />} />
+              <Route path="/seats" element={<SeatBooking />} />
             </Routes>
           </div>
         </SignedIn>

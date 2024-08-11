@@ -1,3 +1,4 @@
+import { useNavigate } from "react-router-dom";
 import {
   Card,
   CardContent,
@@ -16,7 +17,20 @@ interface MovieCardProps {
   image: string;
 }
 
-const MovieCard = ({ title, description, director, rating, showtime, image }: MovieCardProps) => {
+const MovieCard = ({
+  title,
+  description,
+  director,
+  rating,
+  showtime,
+  image,
+}: MovieCardProps) => {
+  const navigate = useNavigate(); 
+
+  const handleBookSeatClick = () => {
+    navigate(`/seats`); 
+  };
+
   return (
     <Card className="w-80 bg-gray-900 text-white rounded-lg shadow-2xl overflow-hidden hover:shadow-3xl transition-shadow duration-300 flex flex-col">
       <img
@@ -36,7 +50,10 @@ const MovieCard = ({ title, description, director, rating, showtime, image }: Mo
         <p className="text-sm"><strong className="text-yellow-400">Showtime:</strong> {showtime}</p>
       </CardContent>
       <CardFooter className="p-4 bg-gray-800 flex justify-between items-center">
-        <button className="bg-yellow-500 text-gray-800 px-4 py-2 rounded-full hover:bg-yellow-600 transition-colors duration-300">
+        <button
+          className="bg-yellow-500 text-gray-800 px-4 py-2 rounded-full hover:bg-yellow-600 transition-colors duration-300"
+          onClick={handleBookSeatClick}
+        >
           Book Seat
         </button>
       </CardFooter>
