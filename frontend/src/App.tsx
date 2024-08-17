@@ -5,6 +5,7 @@ import Navbar from "./components/Navbar";
 import SigninPage from "./components/SigninPage";
 import ContactUs from "./components/ContactUs";
 import SeatBooking from "./components/SeatBooking";
+import Payment from "./components/Payment";
 
 function App() {
   return (
@@ -20,6 +21,7 @@ function App() {
               <Route path="/" element={<Home />} />
               <Route path="/contact" element={<ContactUs />} />
               <Route path="/seats" element={<SeatBooking />} />
+              <Route path="/pay" element={<Payment />} />
             </Routes>
           </div>
         </SignedIn>
