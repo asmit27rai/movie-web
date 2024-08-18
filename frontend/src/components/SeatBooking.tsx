@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 interface BookedSeats {
   [date: string]: string[];
@@ -10,10 +11,19 @@ const bookedSeats: BookedSeats = {
 };
 
 const SeatBooking = () => {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const movie = location.state as {
+    title: string;
+    description: string;
+    director: string;
+    rating: string;
+    showtime: string;
+    image: string;
+  };
+  
   const [selectedDate, setSelectedDate] = useState<string>('2024-08-15');
   const [selectedSeats, setSelectedSeats] = useState<Set<string>>(new Set());
-
-  const movieTitle = "Inception";
 
   const rows = Array.from({ length: 100 }, (_, i) => i + 1);
   const columns = Array.from({ length: 26 }, (_, i) => String.fromCharCode(65 + i));
@@ -24,7 +34,9 @@ const SeatBooking = () => {
   };
 
   const handleSeatClick = (seat: string) => {
-    if (bookedSeats[selectedDate]?.includes(seat)) return;
+    if (bookedSeats[selectedDate]?.includes(seat)){
+      return;
+    };
     setSelectedSeats((prev) => {
       const newSet = new Set(prev);
       if (newSet.has(seat)) {
@@ -37,14 +49,17 @@ const SeatBooking = () => {
   };
 
   const handleSubmit = () => {
-    console.log('Movie Title:', movieTitle);
-    console.log('Date:', selectedDate);
-    console.log('Selected Seats:', Array.from(selectedSeats).join(', '));
+    const data = {
+      title: movie.title,
+      selectedSeats: Array.from(selectedSeats),
+      selectedDate,
+    };
+    navigate('/pay', { state: data });
   };
 
   return (
     <div className="p-8 max-w-6xl mx-auto bg-gray-900 text-white rounded-lg shadow-2xl">
-      <h1 className="text-3xl font-bold mb-6 text-center">{movieTitle} - Seat Booking</h1>
+      <h1 className="text-3xl font-bold mb-6 text-center">{movie.title} - Seat Booking</h1>
 
       <div className="mb-8">
         <label htmlFor="date" className="block text-lg font-semibold mb-2">Select Date:</label>
@@ -65,7 +80,6 @@ const SeatBooking = () => {
       <div className="overflow-auto">
         <div className="flex flex-col items-center">
           <div className="grid grid-cols-[repeat(27,_minmax(0,_1fr))] gap-2 text-center">
-            {/* Empty corner cell */}
             <div className="w-10 h-10"></div>
             {columns.map((col) => (
               <div key={col} className="text-xs font-semibold text-gray-300">{col}</div>
@@ -77,7 +91,6 @@ const SeatBooking = () => {
                   const seat = `${col}${row}`;
                   const isBooked = bookedSeats[selectedDate]?.includes(seat);
                   const isSelected = selectedSeats.has(seat);
-
                   return (
                     <button
                       key={seat}

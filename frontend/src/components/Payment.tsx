@@ -1,14 +1,26 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { useToast } from './ui/use-toast';
 
 const Payment: React.FC = () => {
-  const movieName = "Inception";
-  const seatNumbers = ['A1', 'A2', 'A3'];
-  const date = "August 20, 2024";
-  const price = 30.00;
+  const location = useLocation();
   const navigate = useNavigate();
+  const { toast } = useToast();
+  const { title, selectedSeats, selectedDate } = location.state as {
+    title: string;
+    selectedSeats: string[];
+    selectedDate: string;
+  };
 
-  const handlePayment = () => {
+  const seatNumbers = selectedSeats;
+  const date = new Date(selectedDate).toLocaleDateString();
+  const price = seatNumbers.length * 10; // Assume $10 per seat
+
+  const handlePaymentClick = () => {
+    toast({
+      title: "Payment Successful",
+      description: "Thank you for your booking!",
+    })
     navigate('/');
   };
 
@@ -19,12 +31,7 @@ const Payment: React.FC = () => {
         
         <div className="mb-6">
           <p className="text-lg font-light">Movie Name:</p>
-          <p className="text-2xl font-semibold">{movieName}</p>
-        </div>
-        
-        <div className="mb-6">
-          <p className="text-lg font-light">Seat Numbers:</p>
-          <p className="text-2xl font-semibold">{seatNumbers.join(', ')}</p>
+          <p className="text-2xl font-semibold">{title}</p>
         </div>
         
         <div className="mb-6">
@@ -33,21 +40,19 @@ const Payment: React.FC = () => {
         </div>
 
         <div className="mb-6">
-          <p className="text-lg font-light">Price:</p>
+          <p className="text-lg font-light">Selected Seats:</p>
+          <p className="text-2xl font-semibold">{seatNumbers.join(', ')}</p>
+        </div>
+
+        <div className="mb-6">
+          <p className="text-lg font-light">Total Price:</p>
           <p className="text-2xl font-semibold">${price.toFixed(2)}</p>
         </div>
 
-        <div className="mb-8">
-          <p className="text-lg font-light mb-3">Payment Option:</p>
-          <select className="w-full p-3 rounded-lg bg-gray-900 border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-300">
-            <option>Credit Card</option>
-            <option>Debit Card</option>
-            <option>PayPal</option>
-            <option>Google Pay</option>
-          </select>
-        </div>
-
-        <button onClick={handlePayment} className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-bold text-lg shadow-lg transition-all duration-300 ease-in-out transform hover:translate-y-1">
+        <button
+          className="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded w-full mt-6"
+          onClick={handlePaymentClick}
+        >
           Confirm Payment
         </button>
       </div>
