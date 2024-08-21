@@ -1,5 +1,7 @@
 import CarouselCom from "./Carousel";
 import MovieCard from "./MovieCard";
+import { Button } from "./ui/button";
+import { useNavigate } from "react-router-dom";
 
 const movies = [
   {
@@ -77,6 +79,7 @@ const movies = [
 ];
 
 const Home = () => {
+  const navigate = useNavigate();
   return (
     <div className="flex flex-col min-h-screen">
       <CarouselCom />
@@ -96,6 +99,7 @@ const Home = () => {
           ))}
         </div>
       </div>
+      <Button onClick={() => {navigate("/admin")}}>AdminPage</Button>
     </div>
   );
 };
