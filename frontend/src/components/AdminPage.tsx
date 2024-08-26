@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Button } from "./ui/button";
 import {
   Dialog,
@@ -10,6 +10,8 @@ import {
   DialogTrigger,
 } from "./ui/dialog";
 import MovieCard from "./MovieCard";
+import { UserButton } from "@clerk/clerk-react";
+import { useClerk } from "@clerk/clerk-react";
 
 const AdminPage: React.FC = () => {
   const [isTheaterDialogOpen, setTheaterDialogOpen] = useState(false);
@@ -59,11 +61,52 @@ const AdminPage: React.FC = () => {
   ];
 
   const handleTheaterDialogClose = () => {
-    setTheaterDialogOpen(false);
+    const { name, location, totalSeats } = theaterDetails;
+    const seats = parseInt(totalSeats, 10);
+
+    if (name && location && !isNaN(seats) && seats >= 25 && seats <= 100) {
+      createTheatre({
+        name,
+        location,
+        totalSeats: seats,
+      });
+      setTheaterDetails({
+        name: "",
+        location: "",
+        totalSeats: "",
+      });
+      setTheaterDialogOpen(false);
+    } else {
+      if (!name || !location || isNaN(seats) || seats < 25 || seats > 100) {
+        setTotalSeatsError("Please fill out all fields correctly.");
+      }
+    }
   };
 
-  const handleMovieDialogClose = () => {
-    setMovieDialogOpen(false);
+  const handleMovieDialogClose = async () => {
+    const { title, description, durationMinutes, releaseDate, posterUrl } =
+      movieDetails;
+    const duration = parseInt(durationMinutes, 10);
+
+    if (title && description && !isNaN(duration) && releaseDate && posterUrl) {
+      await createMovie({
+        title,
+        description,
+        durationMinutes: duration,
+        releaseDate,
+        posterUrl,
+      });
+      setMovieDetails({
+        title: "",
+        description: "",
+        durationMinutes: "",
+        releaseDate: "",
+        posterUrl: "",
+      });
+      setMovieDialogOpen(false);
+    } else {
+      console.error("Please fill out all fields correctly.");
+    }
   };
 
   const handleTheaterDialogOpen = () => {
@@ -99,14 +142,136 @@ const AdminPage: React.FC = () => {
     }
   };
 
-  // function getCookie(name: string): string | null {
-  //   const value = `; ${document.cookie}`
-  //   const parts = value.split(`; ${name}=`)
-  //   if (parts.length === 2) {
-  //     return parts.pop()?.split(';').shift() || null
-  //   }
-  //   return null
-  // }
+  function getCookie(name: string): string | null {
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) {
+      return parts.pop()?.split(";").shift() || null;
+    }
+    return null;
+  }
+
+  const createTheatre = async (theatreDetails: {
+    name: string;
+    location: string;
+    totalSeats: number;
+  }) => {
+    const sessionCookie = getCookie("__session");
+
+    if (!sessionCookie) {
+      console.error("User is not logged in");
+      return;
+    }
+
+    try {
+      const response = await fetch(
+        "https://movies-backend.aayush0325.workers.dev/api/v1/theatres/create",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${sessionCookie}`,
+          },
+          body: JSON.stringify(theatreDetails),
+        }
+      );
+
+      if (response.ok) {
+        const data = await response.json();
+        console.log(
+          `Theatre created successfully with ${theatreDetails.totalSeats} Seats`,
+          data
+        );
+      } else {
+        throw new Error("Failed to create theatre");
+      }
+    } catch (error) {
+      console.error("Error:", error);
+    }
+  };
+
+  const createMovie = async (movieDetails: {
+    title: string;
+    description: string;
+    durationMinutes: number;
+    releaseDate: string;
+    posterUrl: string;
+  }) => {
+    const sessionCookie = getCookie("__session");
+
+    if (!sessionCookie) {
+      console.error("User is not logged in");
+      return;
+    }
+
+    try {
+      const response = await fetch(
+        "https://movies-backend.aayush0325.workers.dev/api/v1/movies/create",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${sessionCookie}`,
+          },
+          body: JSON.stringify(movieDetails),
+        }
+      );
+
+      if (response.ok) {
+        const data = await response.json();
+        console.log("Movie created successfully", data);
+      } else {
+        throw new Error("Failed to create movie");
+      }
+    } catch (error) {
+      console.error("Error:", error);
+    }
+  };
+
+  const clerk = useClerk();
+  const { user } = clerk;
+  const firstName = user?.firstName || "John";
+  const lastName = user?.lastName || "Doe";
+
+  useEffect(() => {
+    const createUser = async () => {
+      const sessionCookie = getCookie("__session");
+
+      if (!sessionCookie) {
+        console.error("User is not logged in");
+        return;
+      }
+
+      try {
+        const response = await fetch(
+          "https://movies-backend.aayush0325.workers.dev/api/v1/users/create",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${sessionCookie}`,
+            },
+            body: JSON.stringify({
+              firstName: firstName,
+              lastName: lastName,
+            }),
+          }
+        );
+
+        if (response.ok) {
+          const data = await response.json();
+          console.log(data.message);
+        } else {
+          const errorData = await response.json();
+          console.error(errorData.message);
+        }
+      } catch (error) {
+        console.error("An error occurred while creating the user.", error);
+      }
+    };
+
+    createUser();
+  }, [firstName, lastName]);
 
   return (
     <div className="bg-gray-900 text-white min-h-screen flex flex-col items-center justify-center p-4">
@@ -149,175 +314,144 @@ const AdminPage: React.FC = () => {
                   className="p-6 bg-gray-700 rounded-md flex justify-between items-center shadow-md transition-transform transform hover:scale-105"
                 >
                   <div>
-                    <h3 className="text-xl font-semibold">{theater.name}</h3>
+                    <h3 className="text-xl font-bold">{theater.name}</h3>
                     <p className="text-gray-400">{theater.address}</p>
                   </div>
+                  <Button onClick={handleTheaterDialogOpen}>Edit</Button>
                 </li>
               ))}
             </ul>
           </section>
         </div>
-
-        <div className="mt-6 flex space-x-4">
-          <Dialog
-            open={isTheaterDialogOpen}
-            onOpenChange={setTheaterDialogOpen}
-          >
-            <DialogTrigger asChild>
-              <Button onClick={handleTheaterDialogOpen}>Add Theater</Button>
-            </DialogTrigger>
-            <DialogContent className="sm:max-w-[500px] bg-gray-800 text-white">
-              <DialogHeader>
-                <DialogTitle>Add Theater</DialogTitle>
-                <DialogDescription>
-                  Enter details of the new theater.
-                </DialogDescription>
-              </DialogHeader>
-              <div className="grid gap-4 py-4">
-                <div className="grid grid-cols-4 items-center gap-4">
-                  <label htmlFor="name" className="text-right text-gray-300">
-                    Theater Name
-                  </label>
-                  <input
-                    id="name"
-                    placeholder="Enter theater name"
-                    className="col-span-3 p-2 bg-gray-700 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    onChange={handleTheaterInputChange}
-                    value={theaterDetails.name}
-                  />
-                </div>
-                <div className="grid grid-cols-4 items-center gap-4">
-                  <label
-                    htmlFor="location"
-                    className="text-right text-gray-300"
-                  >
-                    Location
-                  </label>
-                  <input
-                    id="location"
-                    placeholder="Enter location"
-                    className="col-span-3 p-2 bg-gray-700 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    onChange={handleTheaterInputChange}
-                    value={theaterDetails.location}
-                  />
-                </div>
-                <div className="grid grid-cols-4 items-center gap-4">
-                  <label
-                    htmlFor="totalSeats"
-                    className="text-right text-gray-300"
-                  >
-                    Total Seats
-                  </label>
-                  <input
-                    id="totalSeats"
-                    type="number"
-                    placeholder="Enter total seats"
-                    className="col-span-3 p-2 bg-gray-700 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    onChange={handleTheaterInputChange}
-                    value={theaterDetails.totalSeats}
-                  />
-                </div>
-                {totalSeatsError && <>{totalSeatsError}</>}
-              </div>
-              <DialogFooter>
-                <Button onClick={handleTheaterDialogClose}>Save Theater</Button>
-              </DialogFooter>
-            </DialogContent>
-          </Dialog>
-          <Dialog open={isMovieDialogOpen} onOpenChange={setMovieDialogOpen}>
-            <DialogTrigger asChild>
-              <Button onClick={handleMovieDialogOpen}>Add Movie</Button>
-            </DialogTrigger>
-            <DialogContent className="sm:max-w-[500px] bg-gray-800 text-white">
-              <DialogHeader>
-                <DialogTitle>Add Movie</DialogTitle>
-                <DialogDescription>
-                  Enter details of the new movie.
-                </DialogDescription>
-              </DialogHeader>
-              <div className="grid gap-4 py-4">
-                <div className="grid grid-cols-4 items-center gap-4">
-                  <label htmlFor="title" className="text-right text-gray-300">
-                    Title
-                  </label>
-                  <input
-                    id="title"
-                    placeholder="Enter movie title"
-                    className="col-span-3 p-2 bg-gray-700 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    onChange={handleInputChange}
-                    value={movieDetails.title}
-                  />
-                </div>
-                <div className="grid grid-cols-4 items-center gap-4">
-                  <label
-                    htmlFor="description"
-                    className="text-right text-gray-300"
-                  >
-                    Description
-                  </label>
-                  <input
-                    id="description"
-                    placeholder="Enter description"
-                    className="col-span-3 p-2 bg-gray-700 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    onChange={handleInputChange}
-                    value={movieDetails.description}
-                  />
-                </div>
-                <div className="grid grid-cols-4 items-center gap-4">
-                  <label
-                    htmlFor="durationMinutes"
-                    className="text-right text-gray-300"
-                  >
-                    Duration (mins)
-                  </label>
-                  <input
-                    id="durationMinutes"
-                    type="number"
-                    placeholder="Enter duration"
-                    className="col-span-3 p-2 bg-gray-700 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    onChange={handleInputChange}
-                    value={movieDetails.durationMinutes}
-                  />
-                </div>
-                <div className="grid grid-cols-4 items-center gap-4">
-                  <label
-                    htmlFor="releaseDate"
-                    className="text-right text-gray-300"
-                  >
-                    Release Date
-                  </label>
-                  <input
-                    id="releaseDate"
-                    type="date"
-                    placeholder="Enter release date"
-                    className="col-span-3 p-2 bg-gray-700 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    onChange={handleInputChange}
-                    value={movieDetails.releaseDate}
-                  />
-                </div>
-                <div className="grid grid-cols-4 items-center gap-4">
-                  <label
-                    htmlFor="posterUrl"
-                    className="text-right text-gray-300"
-                  >
-                    Poster URL
-                  </label>
-                  <input
-                    id="posterUrl"
-                    placeholder="Enter poster URL"
-                    className="col-span-3 p-2 bg-gray-700 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    onChange={handleInputChange}
-                    value={movieDetails.posterUrl}
-                  />
-                </div>
-              </div>
-              <DialogFooter>
-                <Button onClick={handleMovieDialogClose}>Save Movie</Button>
-              </DialogFooter>
-            </DialogContent>
-          </Dialog>
-        </div>
       </main>
+
+      <Dialog
+        open={isMovieDialogOpen}
+        onOpenChange={() => setMovieDialogOpen(!isMovieDialogOpen)}
+      >
+        <DialogTrigger asChild>
+          <Button onClick={handleMovieDialogOpen} className="bg-blue-600">
+            Add Movie
+          </Button>
+        </DialogTrigger>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Add New Movie</DialogTitle>
+            <DialogDescription>
+              Fill out the details to create a new movie.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <input
+              id="title"
+              type="text"
+              placeholder="Movie Title"
+              value={movieDetails.title}
+              onChange={handleInputChange}
+              className="w-full p-2 border border-gray-700 rounded"
+            />
+            <input
+              id="description"
+              type="text"
+              placeholder="Description"
+              value={movieDetails.description}
+              onChange={handleInputChange}
+              className="w-full p-2 border border-gray-700 rounded"
+            />
+            <input
+              id="durationMinutes"
+              type="text"
+              placeholder="Duration (Minutes)"
+              value={movieDetails.durationMinutes}
+              onChange={handleInputChange}
+              className="w-full p-2 border border-gray-700 rounded"
+            />
+            <input
+              id="releaseDate"
+              type="date"
+              placeholder="Release Date"
+              value={movieDetails.releaseDate}
+              onChange={handleInputChange}
+              className="w-full p-2 border border-gray-700 rounded"
+            />
+            <input
+              id="posterUrl"
+              type="text"
+              placeholder="Poster URL"
+              value={movieDetails.posterUrl}
+              onChange={handleInputChange}
+              className="w-full p-2 border border-gray-700 rounded"
+            />
+          </div>
+          <DialogFooter>
+            <Button onClick={handleMovieDialogClose}>Save Movie</Button>
+            <Button
+              onClick={() => setMovieDialogOpen(false)}
+              className="bg-red-600"
+            >
+              Cancel
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog
+        open={isTheaterDialogOpen}
+        onOpenChange={() => setTheaterDialogOpen(!isTheaterDialogOpen)}
+      >
+        <DialogTrigger asChild>
+          <Button onClick={handleTheaterDialogOpen} className="bg-green-600">
+            Add Theater
+          </Button>
+        </DialogTrigger>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Add New Theater</DialogTitle>
+            <DialogDescription>
+              Fill out the details to create a new theater.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <input
+              id="name"
+              type="text"
+              placeholder="Theater Name"
+              value={theaterDetails.name}
+              onChange={handleTheaterInputChange}
+              className="w-full p-2 border border-gray-700 rounded"
+            />
+            <input
+              id="location"
+              type="text"
+              placeholder="Location"
+              value={theaterDetails.location}
+              onChange={handleTheaterInputChange}
+              className="w-full p-2 border border-gray-700 rounded"
+            />
+            <input
+              id="totalSeats"
+              type="text"
+              placeholder="Total Seats"
+              value={theaterDetails.totalSeats}
+              onChange={handleTheaterInputChange}
+              className="w-full p-2 border border-gray-700 rounded"
+            />
+            {totalSeatsError && (
+              <p className="text-red-600">{totalSeatsError}</p>
+            )}
+          </div>
+          <DialogFooter>
+            <Button onClick={handleTheaterDialogClose}>Save Theater</Button>
+            <Button
+              onClick={() => setTheaterDialogOpen(false)}
+              className="bg-red-600"
+            >
+              Cancel
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+      <UserButton />
     </div>
   );
 };
