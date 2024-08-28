@@ -1,4 +1,3 @@
-import { useNavigate } from "react-router-dom";
 import {
   Card,
   CardContent,
@@ -13,6 +12,7 @@ interface MovieCardProps {
   description: string;
   showtime: string;
   image: string;
+  id:number
 }
 
 const MovieCard = ({
@@ -20,13 +20,46 @@ const MovieCard = ({
   description,
   showtime,
   image,
+  id
 }: MovieCardProps) => {
-  const navigate = useNavigate(); 
 
-  const handleBookSeatClick = () => {
-    navigate(`/seats`, {
-      state: { title, description, showtime, image }
-    }); 
+  function getCookie(name: string): string | null {
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) {
+      return parts.pop()?.split(";").shift() || null;
+    }
+    return null;
+  }
+
+  const handleDeleteClick = async () => {
+    const sessionCookie = getCookie("__session");
+    if (!sessionCookie) {
+      console.error("User is not logged in");
+      return;
+    }
+
+    try {
+      const response = await fetch(
+        "https://movies-backend.aayush0325.workers.dev/api/v1/movies/delete?id="+id,
+        {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${sessionCookie}`,
+          },
+        }
+      );
+
+      if (response.ok) {
+        const data = await response.json();
+        console.log("Movie deleted successfully", data);
+      } else {
+        throw new Error("Failed to delete movie");
+      }
+    } catch (error) {
+      console.error("Error:", error);
+    }
   };
 
   return (
@@ -48,9 +81,9 @@ const MovieCard = ({
       <CardFooter className="p-3 sm:p-4 bg-gray-800 flex justify-between items-center">
         <button
           className="bg-yellow-500 text-gray-800 px-3 py-1 sm:px-4 sm:py-2 rounded-full hover:bg-yellow-600 transition-colors duration-300 text-xs sm:text-sm"
-          onClick={handleBookSeatClick}
+          onClick={handleDeleteClick}
         >
-          Book Seat
+          Delete Movie
         </button>
       </CardFooter>
     </Card>

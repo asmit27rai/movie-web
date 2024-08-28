@@ -447,6 +447,7 @@ const AdminPage: React.FC = () => {
                     description={movie.description}
                     showtime={movie.releaseDate}
                     image={movie.posterUrl}
+                    id={movie.id}
                   />
                 ))
               ) : (
