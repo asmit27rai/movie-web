@@ -20,10 +20,21 @@ interface Theatre {
   id: number;
 }
 
+interface Movie {
+  id: number;
+  title: string;
+  description: string;
+  durationMinutes: number;
+  releaseDate: string;
+  posterUrl: string;
+}
+
 const AdminPage: React.FC = () => {
   const [isTheaterDialogOpen, setTheaterDialogOpen] = useState(false);
   const [isMovieDialogOpen, setMovieDialogOpen] = useState(false);
   const [theaters, setTheaters] = useState<Theatre[]>([]);
+  const [isShowtimeDialogOpen, setShowtimeDialogOpen] = useState(false);
+  const [movies, setMovies] = useState<Movie[]>();
   const [movieDetails, setMovieDetails] = useState({
     title: "",
     description: "",
@@ -36,26 +47,15 @@ const AdminPage: React.FC = () => {
     location: "",
     totalSeats: "",
   });
-  const [totalSeatsError, setTotalSeatsError] = useState("");
+  const [showtimeDetails, setShowtimeDetails] = useState({
+    movieId: "",
+    theatreId: "",
+    startTime: "",
+    endTime: "",
+    price: "",
+  });
 
-  const movies = [
-    {
-      title: "The Great Adventure",
-      description: "An epic journey through uncharted territories.",
-      director: "Jane Doe",
-      rating: "8.7",
-      showtime: "7:00 PM",
-      image: "https://via.placeholder.com/300x200",
-    },
-    {
-      title: "Mystery Night",
-      description: "A thrilling tale of suspense and intrigue.",
-      director: "John Smith",
-      rating: "9.0",
-      showtime: "9:00 PM",
-      image: "https://via.placeholder.com/300x200",
-    },
-  ];
+  const [totalSeatsError, setTotalSeatsError] = useState("");
 
   const handleTheaterDialogClose = () => {
     const { name, location, totalSeats } = theaterDetails;
@@ -106,8 +106,52 @@ const AdminPage: React.FC = () => {
     }
   };
 
+  const handleShowtimeDialogClose = async () => {
+    const sessionCookie = getCookie("__session");
+
+    if (!sessionCookie) {
+      console.error("User is not logged in");
+      return;
+    }
+    try {
+      const response = await fetch(
+        "https://movies-backend.aayush0325.workers.dev/api/v1/shows/create",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${sessionCookie}`,
+          },
+          body: JSON.stringify({
+            movieId: Number(showtimeDetails.movieId),
+            theatreId: Number(showtimeDetails.theatreId),
+            startTime: showtimeDetails.startTime,
+            endTime: showtimeDetails.endTime,
+            price: Number(showtimeDetails.price),
+          }),
+        }
+      );
+
+      if (response.ok) {
+        const data = await response.json();
+        console.log("Showtime created successfully", data);
+      } else {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Failed to create showtime");
+      }
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setShowtimeDialogOpen(false);
+    }
+  };
+
   const handleTheaterDialogOpen = () => {
     setTheaterDialogOpen(true);
+  };
+
+  const handleshowTimeDialogOpen = () => {
+    setShowtimeDialogOpen(true);
   };
 
   const handleMovieDialogOpen = () => {
@@ -117,6 +161,16 @@ const AdminPage: React.FC = () => {
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { id, value } = e.target;
     setMovieDetails((prevState) => ({
+      ...prevState,
+      [id]: value,
+    }));
+  };
+
+  const handleShowtimeInputChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
+    const { id, value } = e.target;
+    setShowtimeDetails((prevState) => ({
       ...prevState,
       [id]: value,
     }));
@@ -158,7 +212,8 @@ const AdminPage: React.FC = () => {
 
     try {
       const response = await fetch(
-        "https://movies-backend.aayush0325.workers.dev/api/v1/theatres/delete?id=" + id,
+        "https://movies-backend.aayush0325.workers.dev/api/v1/theatres/delete?id=" +
+          id,
         {
           method: "DELETE",
           headers: {
@@ -179,7 +234,7 @@ const AdminPage: React.FC = () => {
     } catch (error) {
       console.error("Error:", error);
     }
-  }
+  };
 
   const createTheatre = async (theatreDetails: {
     name: string;
@@ -324,13 +379,44 @@ const AdminPage: React.FC = () => {
           setTheaters(data);
         } else {
           const errorData = await response.json();
-          throw new Error(errorData.message || 'Failed to fetch theaters');
+          throw new Error(errorData.message || "Failed to fetch theaters");
         }
       } catch (error: any) {
-        console.error('Error:', error);
+        console.error("Error:", error);
       }
     };
 
+    const getMovies = async () => {
+      const sessionCookie = getCookie("__session");
+
+      if (!sessionCookie) {
+        console.error("User is not logged in");
+        return;
+      }
+      try {
+        const response = await fetch(
+          "https://movies-backend.aayush0325.workers.dev/api/v1/movies/read/personal",
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${sessionCookie}`,
+            },
+          }
+        );
+
+        if (response.ok) {
+          const data = await response.json();
+          setMovies(data.result);
+        } else {
+          const errorData = await response.json();
+          throw new Error(errorData.message || "Failed to fetch movies");
+        }
+      } catch (error: any) {
+        console.error("Error:", error);
+      }
+    };
+    getMovies();
     createUser();
     getTheaters();
   }, [firstName, lastName]);
@@ -353,17 +439,19 @@ const AdminPage: React.FC = () => {
           <section className="max-w-4xl mx-auto bg-gray-800 p-8 rounded-lg shadow-xl">
             <h2 className="text-3xl font-semibold mb-4">Movies</h2>
             <div className="flex flex-wrap gap-8 justify-center">
-              {movies.map((movie, index) => (
-                <MovieCard
-                  key={index}
-                  title={movie.title}
-                  description={movie.description}
-                  director={movie.director}
-                  rating={movie.rating}
-                  showtime={movie.showtime}
-                  image={movie.image}
-                />
-              ))}
+              {movies && movies.length > 0 ? (
+                movies.map((movie, index) => (
+                  <MovieCard
+                    key={index}
+                    title={movie.title}
+                    description={movie.description}
+                    showtime={movie.releaseDate}
+                    image={movie.posterUrl}
+                  />
+                ))
+              ) : (
+                <p>No movies available</p>
+              )}
             </div>
           </section>
 
@@ -379,7 +467,9 @@ const AdminPage: React.FC = () => {
                     <h3 className="text-xl font-bold">{theater.name}</h3>
                     <p className="text-gray-400">{theater.location}</p>
                   </div>
-                  <Button onClick={() => deleteTheatre(theater.id)}>Delete</Button>
+                  <Button onClick={() => deleteTheatre(theater.id)}>
+                    Delete
+                  </Button>
                 </li>
               ))}
             </ul>
@@ -510,6 +600,81 @@ const AdminPage: React.FC = () => {
             >
               Cancel
             </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+      <Dialog
+        open={isShowtimeDialogOpen}
+        onOpenChange={() => setTheaterDialogOpen(!isShowtimeDialogOpen)}
+      >
+        <DialogTrigger asChild>
+          <Button onClick={handleshowTimeDialogOpen} className="bg-green-600">
+            Add ShowTime
+          </Button>
+        </DialogTrigger>
+        <DialogContent>
+          <DialogHeader>
+            <DialogDescription>
+              Fill out the form to add a new showtime.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex flex-col space-y-4">
+            <select
+              id="movieId"
+              value={showtimeDetails.movieId}
+              onChange={handleShowtimeInputChange}
+              className="p-2 border border-gray-300 rounded"
+            >
+              <option value="">Select Movie</option>
+              {movies && movies.length > 0 ? (
+                movies.map((movie, index) => (
+                  <option key={index} value={movie.id}>
+                    {movie.title}
+                  </option>
+                ))
+              ) : (
+                <p>No movies available</p>
+              )}
+            </select>
+            <select
+              id="theatreId"
+              value={showtimeDetails.theatreId}
+              onChange={handleShowtimeInputChange}
+              className="p-2 border border-gray-300 rounded"
+            >
+              <option value="">Select Theater</option>
+              {theaters.map((theater) => (
+                <option key={theater.id} value={theater.id}>
+                  {theater.name}
+                </option>
+              ))}
+            </select>
+            <input
+              id="startTime"
+              type="datetime-local"
+              value={showtimeDetails.startTime}
+              onChange={handleShowtimeInputChange}
+              className="p-2 border border-gray-300 rounded"
+            />
+            <input
+              id="endTime"
+              type="datetime-local"
+              value={showtimeDetails.endTime}
+              onChange={handleShowtimeInputChange}
+              className="p-2 border border-gray-300 rounded"
+            />
+            <input
+              id="price"
+              type="number"
+              placeholder="Price"
+              value={showtimeDetails.price}
+              onChange={handleShowtimeInputChange}
+              className="p-2 border border-gray-300 rounded"
+            />
+          </div>
+
+          <DialogFooter>
+            <Button onClick={handleShowtimeDialogClose}>Add Showtime</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

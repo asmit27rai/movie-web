@@ -11,8 +11,6 @@ import {
 interface MovieCardProps {
   title: string;
   description: string;
-  director: string;
-  rating: string;
   showtime: string;
   image: string;
 }
@@ -20,8 +18,6 @@ interface MovieCardProps {
 const MovieCard = ({
   title,
   description,
-  director,
-  rating,
   showtime,
   image,
 }: MovieCardProps) => {
@@ -29,7 +25,7 @@ const MovieCard = ({
 
   const handleBookSeatClick = () => {
     navigate(`/seats`, {
-      state: { title, description, director, rating, showtime, image }
+      state: { title, description, showtime, image }
     }); 
   };
 
@@ -47,8 +43,6 @@ const MovieCard = ({
         </CardDescription>
       </CardHeader>
       <CardContent className="p-3 sm:p-4 flex-grow">
-        <p className="text-xs sm:text-sm"><strong className="text-yellow-400">Director:</strong> {director}</p>
-        <p className="text-xs sm:text-sm"><strong className="text-yellow-400">Rating:</strong> {rating}</p>
         <p className="text-xs sm:text-sm"><strong className="text-yellow-400">Showtime:</strong> {showtime}</p>
       </CardContent>
       <CardFooter className="p-3 sm:p-4 bg-gray-800 flex justify-between items-center">
