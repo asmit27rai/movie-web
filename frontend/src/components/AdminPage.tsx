@@ -13,9 +13,17 @@ import MovieCard from "./MovieCard";
 import { UserButton } from "@clerk/clerk-react";
 import { useClerk } from "@clerk/clerk-react";
 
+interface Theatre {
+  name: string;
+  location: string;
+  totalSeats: number;
+  id: number;
+}
+
 const AdminPage: React.FC = () => {
   const [isTheaterDialogOpen, setTheaterDialogOpen] = useState(false);
   const [isMovieDialogOpen, setMovieDialogOpen] = useState(false);
+  const [theaters, setTheaters] = useState<Theatre[]>([]);
   const [movieDetails, setMovieDetails] = useState({
     title: "",
     description: "",
@@ -46,17 +54,6 @@ const AdminPage: React.FC = () => {
       rating: "9.0",
       showtime: "9:00 PM",
       image: "https://via.placeholder.com/300x200",
-    },
-  ];
-
-  const theaters = [
-    {
-      name: "Grand Cinema",
-      address: "123 Movie Lane, Film City",
-    },
-    {
-      name: "Epic Theater",
-      address: "456 Screen Street, Showtown",
     },
   ];
 
@@ -149,6 +146,39 @@ const AdminPage: React.FC = () => {
       return parts.pop()?.split(";").shift() || null;
     }
     return null;
+  }
+
+  const deleteTheatre = async (id: number) => {
+    const sessionCookie = getCookie("__session");
+
+    if (!sessionCookie) {
+      console.error("User is not logged in");
+      return;
+    }
+
+    try {
+      const response = await fetch(
+        "https://movies-backend.aayush0325.workers.dev/api/v1/theatres/delete?id=" + id,
+        {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${sessionCookie}`,
+          },
+        }
+      );
+
+      if (response.ok) {
+        setTheaters((prevTheaters) =>
+          prevTheaters.filter((theater) => theater.id !== id)
+        );
+        console.log("Theatre deleted successfully");
+      } else {
+        throw new Error("Failed to delete theatre");
+      }
+    } catch (error) {
+      console.error("Error:", error);
+    }
   }
 
   const createTheatre = async (theatreDetails: {
@@ -270,7 +300,39 @@ const AdminPage: React.FC = () => {
       }
     };
 
+    const getTheaters = async () => {
+      const sessionCookie = getCookie("__session");
+
+      if (!sessionCookie) {
+        console.error("User is not logged in");
+        return;
+      }
+      try {
+        const response = await fetch(
+          "https://movies-backend.aayush0325.workers.dev/api/v1/theatres/read/personal",
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${sessionCookie}`,
+            },
+          }
+        );
+
+        if (response.ok) {
+          const data = await response.json();
+          setTheaters(data);
+        } else {
+          const errorData = await response.json();
+          throw new Error(errorData.message || 'Failed to fetch theaters');
+        }
+      } catch (error: any) {
+        console.error('Error:', error);
+      }
+    };
+
     createUser();
+    getTheaters();
   }, [firstName, lastName]);
 
   return (
@@ -315,9 +377,9 @@ const AdminPage: React.FC = () => {
                 >
                   <div>
                     <h3 className="text-xl font-bold">{theater.name}</h3>
-                    <p className="text-gray-400">{theater.address}</p>
+                    <p className="text-gray-400">{theater.location}</p>
                   </div>
-                  <Button onClick={handleTheaterDialogOpen}>Edit</Button>
+                  <Button onClick={() => deleteTheatre(theater.id)}>Delete</Button>
                 </li>
               ))}
             </ul>
