@@ -15,6 +15,7 @@ import { UserButton } from "@clerk/clerk-react";
 import { useClerk } from "@clerk/clerk-react";
 import { PlusCircle, Trash2 } from "lucide-react";
 import Footer from "./Footer";
+import { useToast } from "./ui/use-toast";
 
 interface Theatre {
   name: string;
@@ -72,6 +73,8 @@ const AdminPage: React.FC = () => {
   const [persShowTime, setPersShowTime] = useState<ShowTimeProps[]>();
 
   const [totalSeatsError, setTotalSeatsError] = useState("");
+
+  const {toast} = useToast();
 
   const handleTheaterDialogClose = () => {
     const { name, location, totalSeats } = theaterDetails;
@@ -150,10 +153,17 @@ const AdminPage: React.FC = () => {
 
       if (response.ok) {
         const data = await response.json();
+        toast({
+          title: "Added Showtime",
+          description: "ShowTime Added Successfully",
+        });
         console.log("Showtime created successfully", data);
       } else {
         const errorData = await response.json();
-        throw new Error(errorData.message || "Failed to create showtime");
+        toast({
+          title: "Error In Creating ShowTime",
+          description: errorData.message || "Failed to create showtime",
+        });
       }
     } catch (error) {
       console.log(error);
@@ -231,9 +241,17 @@ const AdminPage: React.FC = () => {
         setTheaters((prevTheaters) =>
           prevTheaters.filter((theater) => theater.id !== id)
         );
+        toast({
+          title: "Theatre Deleted",
+          description: "Theatre deleted successfully",
+        });
         console.log("Theatre deleted successfully");
       } else {
         throw new Error("Failed to delete theatre");
+        toast({
+          title: "Error In Deleting Theatre",
+          description: "Failed to delete theatre",
+        });
       }
     } catch (error) {
       console.error("Error:", error);
@@ -271,8 +289,16 @@ const AdminPage: React.FC = () => {
           `Theatre created successfully with ${theatreDetails.totalSeats} Seats`,
           data
         );
+        toast({
+          title: "Theatre Created",
+          description: "Theatre created successfully",
+        });
       } else {
         throw new Error("Failed to create theatre");
+        toast({
+          title: "Error In Creating Theatre",
+          description: "Failed to create theatre",
+        });
       }
     } catch (error) {
       console.error("Error:", error);
@@ -309,8 +335,16 @@ const AdminPage: React.FC = () => {
       if (response.ok) {
         const data = await response.json();
         console.log("Movie created successfully", data);
+        toast({
+          title: "Movie Created",
+          description: "Movie created successfully",
+        });
       } else {
         throw new Error("Failed to create movie");
+        toast({
+          title: "Error In Creating Movie",
+          description: "Failed to create movie",
+        });
       }
     } catch (error) {
       console.error("Error:", error);

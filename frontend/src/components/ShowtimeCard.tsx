@@ -6,6 +6,7 @@ import {
     CardHeader,
     CardTitle,
   } from "./ui/card";
+  import { useToast } from "./ui/use-toast";
   
   interface MovieCardProps {
     movieTitle: string;
@@ -28,6 +29,8 @@ import {
     price,
     theatreName,
   }: MovieCardProps) => {
+
+    const { toast } = useToast();
   
     function getCookie(name: string): string | null {
       const value = `; ${document.cookie}`;
@@ -59,6 +62,10 @@ import {
   
         if (response.ok) {
           console.log(`Showtime with ID: ${showtimeId} deleted successfully.`);
+          toast({
+            title: "Showtime Deleted",
+            description: "Showtime has been deleted successfully",
+          });
         } else {
           throw new Error("Failed to delete showtime");
         }

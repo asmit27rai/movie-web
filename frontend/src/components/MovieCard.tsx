@@ -6,13 +6,14 @@ import {
   CardHeader,
   CardTitle,
 } from "./ui/card";
+import { useToast } from "./ui/use-toast";
 
 interface MovieCardProps {
   title: string;
   description: string;
   showtime: string;
   image: string;
-  id:number
+  id: number;
 }
 
 const MovieCard = ({
@@ -20,8 +21,9 @@ const MovieCard = ({
   description,
   showtime,
   image,
-  id
+  id,
 }: MovieCardProps) => {
+  const { toast } = useToast();
 
   function getCookie(name: string): string | null {
     const value = `; ${document.cookie}`;
@@ -41,7 +43,8 @@ const MovieCard = ({
 
     try {
       const response = await fetch(
-        "https://movies-backend.aayush0325.workers.dev/api/v1/movies/delete?id="+id,
+        "https://movies-backend.aayush0325.workers.dev/api/v1/movies/delete?id=" +
+          id,
         {
           method: "DELETE",
           headers: {
@@ -54,8 +57,16 @@ const MovieCard = ({
       if (response.ok) {
         const data = await response.json();
         console.log("Movie deleted successfully", data);
+        toast({
+          title: "Movie Deleted",
+          description: "Movie has been deleted successfully",
+        });
       } else {
         throw new Error("Failed to delete movie");
+        toast({
+          title: "Error",
+          description: "Failed to delete movie",
+        });
       }
     } catch (error) {
       console.error("Error:", error);
@@ -70,13 +81,17 @@ const MovieCard = ({
         className="w-full h-36 sm:h-40 object-cover transform scale-100 hover:scale-105 transition-transform duration-300"
       />
       <CardHeader className="p-3 sm:p-4 bg-gray-800 flex flex-col flex-grow">
-        <CardTitle className="text-lg sm:text-xl font-bold mb-2 truncate">{title}</CardTitle>
+        <CardTitle className="text-lg sm:text-xl font-bold mb-2 truncate">
+          {title}
+        </CardTitle>
         <CardDescription className="text-gray-300 text-xs sm:text-sm truncate">
           {description}
         </CardDescription>
       </CardHeader>
       <CardContent className="p-3 sm:p-4 flex-grow">
-        <p className="text-xs sm:text-sm"><strong className="text-yellow-400">Showtime:</strong> {showtime}</p>
+        <p className="text-xs sm:text-sm">
+          <strong className="text-yellow-400">Showtime:</strong> {showtime}
+        </p>
       </CardContent>
       <CardFooter className="p-3 sm:p-4 bg-gray-800 flex justify-between items-center">
         <button
