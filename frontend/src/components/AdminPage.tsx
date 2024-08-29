@@ -462,37 +462,38 @@ const AdminPage: React.FC = () => {
   return (
     <div className="bg-gradient-to-br from-gray-900 to-gray-800 text-white min-h-screen">
       <header className="bg-gray-800 shadow-lg p-4">
-        <div className="max-w-7xl mx-auto flex justify-between items-center flex-col mb-">
+        <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center">
           <h1 className="text-3xl font-bold">Admin Dashboard</h1>
-          <div className="flex items-center space-x-4 my-2">
+          <div className="flex items-center space-x-4 mt-2 md:mt-0">
             <p className="text-lg">Welcome, {firstName}</p>
             <UserButton />
           </div>
         </div>
       </header>
-      <main className="max-w-7xl mx-auto p-6 space-y-8">
-        <section className="bg-gray-800 rounded-lg shadow-xl p-6">
-          <h2 className="text-2xl font-semibold mb-4 flex justify-center items-middle">
+
+      <main className="max-w-7xl mx-auto p-4 md:p-6 space-y-8">
+        <section className="bg-gray-800 rounded-lg shadow-xl p-4 md:p-6">
+          <h2 className="text-2xl font-semibold mb-4 text-center">
             Quick Actions
           </h2>
-          <div className="flex space-x-4 justify-center items-middle">
+          <div className="flex flex-wrap justify-center items-center gap-4">
             <Button
               onClick={() => setMovieDialogOpen(true)}
-              className="bg-blue-600 hover:bg-blue-700"
+              className="bg-blue-600 hover:bg-blue-700 w-full md:w-auto"
             >
               <PlusCircle className="mr-2 h-4 w-4" />
               Add Movie
             </Button>
             <Button
               onClick={() => setTheaterDialogOpen(true)}
-              className="bg-green-600 hover:bg-green-700"
+              className="bg-green-600 hover:bg-green-700 w-full md:w-auto"
             >
               <PlusCircle className="mr-2 h-4 w-4" />
               Add Theater
             </Button>
             <Button
               onClick={() => setShowtimeDialogOpen(true)}
-              className="bg-purple-600 hover:bg-purple-700"
+              className="bg-purple-600 hover:bg-purple-700 w-full md:w-auto"
             >
               <PlusCircle className="mr-2 h-4 w-4" />
               Add Showtime
@@ -500,12 +501,12 @@ const AdminPage: React.FC = () => {
           </div>
         </section>
 
-        <div className="mt-12 flex flex-col items-center space-y-10 w-full px-4 sm:px-6">
-          <section className="bg-gradient-to-r from-gray-800 via-gray-900 to-gray-800 rounded-xl shadow-2xl p-8 w-full max-w-screen-xl">
+        <div className="flex flex-col items-center space-y-10 w-full px-4 sm:px-6">
+          <section className="bg-gradient-to-r from-gray-800 via-gray-900 to-gray-800 rounded-xl shadow-2xl p-6 md:p-8 w-full max-w-screen-xl">
             <h2 className="text-3xl font-bold text-white mb-8 text-center">
               Movies
             </h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
               {movies && movies.length > 0 ? (
                 movies.map((movie) => (
                   <MovieCard
@@ -524,8 +525,8 @@ const AdminPage: React.FC = () => {
           </section>
         </div>
 
-        <div className="mt-8 flex flex-col items-center space-y-8">
-          <section className="bg-gray-800 rounded-lg shadow-xl p-6">
+        <div className="flex flex-col items-center space-y-8">
+          <section className="bg-gray-800 rounded-lg shadow-xl p-4 md:p-6">
             <h2 className="text-2xl font-semibold mb-4">Shows</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
               {persShowTime && persShowTime.length > 0 ? (
@@ -549,9 +550,9 @@ const AdminPage: React.FC = () => {
           </section>
         </div>
 
-        <section className="bg-gray-800 rounded-lg shadow-xl p-6">
+        <section className="bg-gray-800 rounded-lg shadow-xl p-4 md:p-6">
           <h2 className="text-2xl font-semibold mb-4">Theaters</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
             {theaters.map((theater) => (
               <div
                 key={theater.id}
