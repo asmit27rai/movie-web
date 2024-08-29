@@ -10,15 +10,28 @@ import {
   DialogTrigger,
 } from "./ui/dialog";
 import MovieCard from "./MovieCard";
+import ShowtimeCard from "./ShowtimeCard";
 import { UserButton } from "@clerk/clerk-react";
 import { useClerk } from "@clerk/clerk-react";
 import { PlusCircle, Trash2 } from "lucide-react";
+import Footer from "./Footer";
 
 interface Theatre {
   name: string;
   location: string;
   totalSeats: number;
   id: number;
+}
+
+interface ShowTimeProps {
+  movieTitle: string;
+  description: string;
+  showtimeId: number;
+  posterUrl: string;
+  startTime: string;
+  endTime: string;
+  price: number;
+  theatreName: string;
 }
 
 interface Movie {
@@ -55,6 +68,8 @@ const AdminPage: React.FC = () => {
     endTime: "",
     price: "",
   });
+
+  const [persShowTime, setPersShowTime] = useState<ShowTimeProps[]>();
 
   const [totalSeatsError, setTotalSeatsError] = useState("");
 
@@ -405,9 +420,43 @@ const AdminPage: React.FC = () => {
         console.error("Error:", error);
       }
     };
+
+    const getShowTime = async () => {
+      const sessionCookie = getCookie("__session");
+
+      if (!sessionCookie) {
+        console.error("User is not logged in");
+        return;
+      }
+      try {
+        const response = await fetch(
+          "https://movies-backend.aayush0325.workers.dev/api/v1/shows/read/personal",
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${sessionCookie}`,
+            },
+          }
+        );
+
+        if (response.ok) {
+          const data = await response.json();
+          console.log(data);
+          setPersShowTime(data);
+        } else {
+          const errorData = await response.json();
+          throw new Error(errorData.message || "Failed to fetch movies");
+        }
+      } catch (error: any) {
+        console.error("Error:", error);
+      }
+    };
+
     getMovies();
     createUser();
     getTheaters();
+    getShowTime();
   }, [firstName, lastName]);
 
   return (
@@ -451,10 +500,12 @@ const AdminPage: React.FC = () => {
           </div>
         </section>
 
-        <div className="mt-8 flex flex-col items-center space-y-8">
-          <section className="bg-gray-800 rounded-lg shadow-xl p-6">
-            <h2 className="text-2xl font-semibold mb-4">Movies</h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+        <div className="mt-12 flex flex-col items-center space-y-10 w-full px-4 sm:px-6">
+          <section className="bg-gradient-to-r from-gray-800 via-gray-900 to-gray-800 rounded-xl shadow-2xl p-8 w-full max-w-screen-xl">
+            <h2 className="text-3xl font-bold text-white mb-8 text-center">
+              Movies
+            </h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-8">
               {movies && movies.length > 0 ? (
                 movies.map((movie) => (
                   <MovieCard
@@ -468,6 +519,31 @@ const AdminPage: React.FC = () => {
                 ))
               ) : (
                 <p className="text-gray-400">No movies available</p>
+              )}
+            </div>
+          </section>
+        </div>
+
+        <div className="mt-8 flex flex-col items-center space-y-8">
+          <section className="bg-gray-800 rounded-lg shadow-xl p-6">
+            <h2 className="text-2xl font-semibold mb-4">Shows</h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+              {persShowTime && persShowTime.length > 0 ? (
+                persShowTime.map((movie) => (
+                  <ShowtimeCard
+                    key={movie.showtimeId}
+                    movieTitle={movie.movieTitle}
+                    description={movie.description}
+                    showtimeId={movie.showtimeId}
+                    posterUrl={movie.posterUrl}
+                    startTime={movie.startTime}
+                    endTime={movie.endTime}
+                    price={movie.price}
+                    theatreName={movie.theatreName}
+                  />
+                ))
+              ) : (
+                <p className="text-gray-400">No Shows available</p>
               )}
             </div>
           </section>
@@ -694,6 +770,7 @@ const AdminPage: React.FC = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+      <Footer />
     </div>
   );
 };
