@@ -41,7 +41,7 @@ const SigninPage: React.FC = () => {
     <div className="flex items-center justify-center h-screen bg-black text-white overflow-hidden">
       <div className="text-center max-w-sm w-full px-4">
         <img src="./gif_movie.gif" alt="Movie Theater" className="w-full h-auto mb-6" />
-        <h1 className="text-3xl font-bold mb-4">Welcome to the Ultimate Movie Theater Experience!</h1>
+        <h1 className="text-3xl font-bold mb-4">Welcome to the Ultimate Movie Theater Experience With Cinematic Universe!</h1>
         <p className="text-lg mb-6">Sign in to explore the latest movies and showtimes.</p>
         
         <div className="mb-6">
