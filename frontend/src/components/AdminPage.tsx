@@ -12,6 +12,7 @@ import {
 import MovieCard from "./MovieCard";
 import { UserButton } from "@clerk/clerk-react";
 import { useClerk } from "@clerk/clerk-react";
+import { PlusCircle, Trash2 } from "lucide-react";
 
 interface Theatre {
   name: string;
@@ -422,60 +423,91 @@ const AdminPage: React.FC = () => {
   }, [firstName, lastName]);
 
   return (
-    <div className="bg-gray-900 text-white min-h-screen flex flex-col items-center justify-center p-4">
-      <header className="text-4xl font-bold mb-8 text-center">
-        Admin Dashboard
+    <div className="bg-gradient-to-br from-gray-900 to-gray-800 text-white min-h-screen">
+      <header className="bg-gray-800 shadow-lg p-4">
+        <div className="max-w-7xl mx-auto flex justify-between items-center flex-col mb-">
+          <h1 className="text-3xl font-bold">Admin Dashboard</h1>
+          <div className="flex items-center space-x-4 my-2">
+            <p className="text-lg">Welcome, {firstName}</p>
+            <UserButton />
+          </div>
+        </div>
       </header>
-      <main className="flex-grow">
-        <section className="max-w-4xl mx-auto bg-gray-800 p-8 rounded-lg shadow-xl">
-          <h2 className="text-3xl font-semibold mb-4">Overview</h2>
-          <p className="text-gray-300">
-            Welcome to the admin dashboard. Here you can manage and monitor the
-            application's data.
-          </p>
+      <main className="max-w-7xl mx-auto p-6 space-y-8">
+        <section className="bg-gray-800 rounded-lg shadow-xl p-6">
+          <h2 className="text-2xl font-semibold mb-4 flex justify-center items-middle">Quick Actions</h2>
+          <div className="flex space-x-4 justify-center items-middle">
+            <Button
+              onClick={() => setMovieDialogOpen(true)}
+              className="bg-blue-600 hover:bg-blue-700"
+            >
+              <PlusCircle className="mr-2 h-4 w-4" />
+              Add Movie
+            </Button>
+            <Button
+              onClick={() => setTheaterDialogOpen(true)}
+              className="bg-green-600 hover:bg-green-700"
+            >
+              <PlusCircle className="mr-2 h-4 w-4" />
+              Add Theater
+            </Button>
+            <Button
+              onClick={() => setShowtimeDialogOpen(true)}
+              className="bg-purple-600 hover:bg-purple-700"
+            >
+              <PlusCircle className="mr-2 h-4 w-4" />
+              Add Showtime
+            </Button>
+          </div>
         </section>
 
         <div className="mt-8 flex flex-col items-center space-y-8">
-          <section className="max-w-4xl mx-auto bg-gray-800 p-8 rounded-lg shadow-xl">
-            <h2 className="text-3xl font-semibold mb-4">Movies</h2>
-            <div className="flex flex-wrap gap-8 justify-center">
-              {movies && movies.length > 0 ? (
-                movies.map((movie, index) => (
-                  <MovieCard
-                    key={index}
-                    title={movie.title}
-                    description={movie.description}
-                    showtime={movie.releaseDate}
-                    image={movie.posterUrl}
-                    id={movie.id}
-                  />
-                ))
-              ) : (
-                <p>No movies available</p>
-              )}
-            </div>
-          </section>
-
-          <section className="max-w-4xl mx-auto bg-gray-800 p-8 rounded-lg shadow-xl">
-            <h2 className="text-3xl font-semibold mb-4">Theaters</h2>
-            <ul className="space-y-6">
-              {theaters.map((theater, index) => (
-                <li
-                  key={index}
-                  className="p-6 bg-gray-700 rounded-md flex justify-between items-center shadow-md transition-transform transform hover:scale-105"
-                >
-                  <div>
-                    <h3 className="text-xl font-bold">{theater.name}</h3>
-                    <p className="text-gray-400">{theater.location}</p>
-                  </div>
-                  <Button onClick={() => deleteTheatre(theater.id)}>
-                    Delete
-                  </Button>
-                </li>
-              ))}
-            </ul>
-          </section>
+            <section className="bg-gray-800 rounded-lg shadow-xl p-6">
+              <h2 className="text-2xl font-semibold mb-4">Movies</h2>
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                {movies && movies.length > 0 ? (
+                  movies.map((movie) => (
+                    <MovieCard
+                      key={movie.id}
+                      title={movie.title}
+                      description={movie.description}
+                      showtime={movie.releaseDate}
+                      image={movie.posterUrl}
+                      id={movie.id}
+                    />
+                  ))
+                ) : (
+                  <p className="text-gray-400">No movies available</p>
+                )}
+              </div>
+            </section>
         </div>
+
+        <section className="bg-gray-800 rounded-lg shadow-xl p-6">
+          <h2 className="text-2xl font-semibold mb-4">Theaters</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {theaters.map((theater) => (
+              <div
+                key={theater.id}
+                className="bg-gray-700 rounded-lg p-4 shadow-md transition-transform transform hover:scale-105"
+              >
+                <h3 className="text-xl font-bold mb-2">{theater.name}</h3>
+                <p className="text-gray-400 mb-4">{theater.location}</p>
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-gray-400">
+                    {theater.totalSeats} seats
+                  </span>
+                  <Button
+                    onClick={() => deleteTheatre(theater.id)}
+                    className="bg-red-600 hover:bg-red-700"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+            ))}
+          </div>
+          </section>
       </main>
 
       <Dialog
@@ -488,7 +520,7 @@ const AdminPage: React.FC = () => {
           </Button>
         </DialogTrigger>
         <DialogContent>
-          <DialogHeader>
+        <DialogHeader>
             <DialogTitle>Add New Movie</DialogTitle>
             <DialogDescription>
               Fill out the details to create a new movie.
@@ -501,23 +533,22 @@ const AdminPage: React.FC = () => {
               placeholder="Movie Title"
               value={movieDetails.title}
               onChange={handleInputChange}
-              className="w-full p-2 border border-gray-700 rounded"
+              className="w-full p-2 border border-gray-700 rounded bg-gray-800 text-white"
             />
             <input
               id="description"
-              type="text"
               placeholder="Description"
               value={movieDetails.description}
               onChange={handleInputChange}
-              className="w-full p-2 border border-gray-700 rounded"
+              className="w-full p-2 border border-gray-700 rounded bg-gray-800 text-white"
             />
             <input
               id="durationMinutes"
-              type="text"
+              type="number"
               placeholder="Duration (Minutes)"
               value={movieDetails.durationMinutes}
               onChange={handleInputChange}
-              className="w-full p-2 border border-gray-700 rounded"
+              className="w-full p-2 border border-gray-700 rounded bg-gray-800 text-white"
             />
             <input
               id="releaseDate"
@@ -525,7 +556,7 @@ const AdminPage: React.FC = () => {
               placeholder="Release Date"
               value={movieDetails.releaseDate}
               onChange={handleInputChange}
-              className="w-full p-2 border border-gray-700 rounded"
+              className="w-full p-2 border border-gray-700 rounded bg-gray-800 text-white"
             />
             <input
               id="posterUrl"
@@ -533,7 +564,7 @@ const AdminPage: React.FC = () => {
               placeholder="Poster URL"
               value={movieDetails.posterUrl}
               onChange={handleInputChange}
-              className="w-full p-2 border border-gray-700 rounded"
+              className="w-full p-2 border border-gray-700 rounded bg-gray-800 text-white"
             />
           </div>
           <DialogFooter>
@@ -565,13 +596,13 @@ const AdminPage: React.FC = () => {
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
-            <input
+          <input
               id="name"
               type="text"
               placeholder="Theater Name"
               value={theaterDetails.name}
               onChange={handleTheaterInputChange}
-              className="w-full p-2 border border-gray-700 rounded"
+              className="w-full p-2 border border-gray-700 rounded bg-gray-800 text-white"
             />
             <input
               id="location"
@@ -579,15 +610,15 @@ const AdminPage: React.FC = () => {
               placeholder="Location"
               value={theaterDetails.location}
               onChange={handleTheaterInputChange}
-              className="w-full p-2 border border-gray-700 rounded"
+              className="w-full p-2 border border-gray-700 rounded bg-gray-800 text-white"
             />
             <input
               id="totalSeats"
-              type="text"
+              type="number"
               placeholder="Total Seats"
               value={theaterDetails.totalSeats}
               onChange={handleTheaterInputChange}
-              className="w-full p-2 border border-gray-700 rounded"
+              className="w-full p-2 border border-gray-700 rounded bg-gray-800 text-white"
             />
             {totalSeatsError && (
               <p className="text-red-600">{totalSeatsError}</p>
@@ -620,11 +651,11 @@ const AdminPage: React.FC = () => {
             </DialogDescription>
           </DialogHeader>
           <div className="flex flex-col space-y-4">
-            <select
+          <select
               id="movieId"
               value={showtimeDetails.movieId}
               onChange={handleShowtimeInputChange}
-              className="p-2 border border-gray-300 rounded"
+              className="w-full p-2 border border-gray-700 rounded bg-gray-800 text-white"
             >
               <option value="">Select Movie</option>
               {movies && movies.length > 0 ? (
@@ -641,7 +672,7 @@ const AdminPage: React.FC = () => {
               id="theatreId"
               value={showtimeDetails.theatreId}
               onChange={handleShowtimeInputChange}
-              className="p-2 border border-gray-300 rounded"
+              className="w-full p-2 border border-gray-700 rounded bg-gray-800 text-white"
             >
               <option value="">Select Theater</option>
               {theaters.map((theater) => (
@@ -655,14 +686,14 @@ const AdminPage: React.FC = () => {
               type="datetime-local"
               value={showtimeDetails.startTime}
               onChange={handleShowtimeInputChange}
-              className="p-2 border border-gray-300 rounded"
+              className="w-full p-2 border border-gray-700 rounded bg-gray-800 text-white"
             />
             <input
               id="endTime"
               type="datetime-local"
               value={showtimeDetails.endTime}
               onChange={handleShowtimeInputChange}
-              className="p-2 border border-gray-300 rounded"
+              className="w-full p-2 border border-gray-700 rounded bg-gray-800 text-white"
             />
             <input
               id="price"
@@ -670,7 +701,7 @@ const AdminPage: React.FC = () => {
               placeholder="Price"
               value={showtimeDetails.price}
               onChange={handleShowtimeInputChange}
-              className="p-2 border border-gray-300 rounded"
+              className="w-full p-2 border border-gray-700 rounded bg-gray-800 text-white"
             />
           </div>
 
