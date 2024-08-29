@@ -147,18 +147,6 @@ const AdminPage: React.FC = () => {
     }
   };
 
-  const handleTheaterDialogOpen = () => {
-    setTheaterDialogOpen(true);
-  };
-
-  const handleshowTimeDialogOpen = () => {
-    setShowtimeDialogOpen(true);
-  };
-
-  const handleMovieDialogOpen = () => {
-    setMovieDialogOpen(true);
-  };
-
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { id, value } = e.target;
     setMovieDetails((prevState) => ({
@@ -435,7 +423,9 @@ const AdminPage: React.FC = () => {
       </header>
       <main className="max-w-7xl mx-auto p-6 space-y-8">
         <section className="bg-gray-800 rounded-lg shadow-xl p-6">
-          <h2 className="text-2xl font-semibold mb-4 flex justify-center items-middle">Quick Actions</h2>
+          <h2 className="text-2xl font-semibold mb-4 flex justify-center items-middle">
+            Quick Actions
+          </h2>
           <div className="flex space-x-4 justify-center items-middle">
             <Button
               onClick={() => setMovieDialogOpen(true)}
@@ -462,25 +452,25 @@ const AdminPage: React.FC = () => {
         </section>
 
         <div className="mt-8 flex flex-col items-center space-y-8">
-            <section className="bg-gray-800 rounded-lg shadow-xl p-6">
-              <h2 className="text-2xl font-semibold mb-4">Movies</h2>
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-                {movies && movies.length > 0 ? (
-                  movies.map((movie) => (
-                    <MovieCard
-                      key={movie.id}
-                      title={movie.title}
-                      description={movie.description}
-                      showtime={movie.releaseDate}
-                      image={movie.posterUrl}
-                      id={movie.id}
-                    />
-                  ))
-                ) : (
-                  <p className="text-gray-400">No movies available</p>
-                )}
-              </div>
-            </section>
+          <section className="bg-gray-800 rounded-lg shadow-xl p-6">
+            <h2 className="text-2xl font-semibold mb-4">Movies</h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+              {movies && movies.length > 0 ? (
+                movies.map((movie) => (
+                  <MovieCard
+                    key={movie.id}
+                    title={movie.title}
+                    description={movie.description}
+                    showtime={movie.releaseDate}
+                    image={movie.posterUrl}
+                    id={movie.id}
+                  />
+                ))
+              ) : (
+                <p className="text-gray-400">No movies available</p>
+              )}
+            </div>
+          </section>
         </div>
 
         <section className="bg-gray-800 rounded-lg shadow-xl p-6">
@@ -507,20 +497,16 @@ const AdminPage: React.FC = () => {
               </div>
             ))}
           </div>
-          </section>
+        </section>
       </main>
 
       <Dialog
         open={isMovieDialogOpen}
         onOpenChange={() => setMovieDialogOpen(!isMovieDialogOpen)}
       >
-        <DialogTrigger asChild>
-          <Button onClick={handleMovieDialogOpen} className="bg-blue-600">
-            Add Movie
-          </Button>
-        </DialogTrigger>
+        <DialogTrigger asChild></DialogTrigger>
         <DialogContent>
-        <DialogHeader>
+          <DialogHeader>
             <DialogTitle>Add New Movie</DialogTitle>
             <DialogDescription>
               Fill out the details to create a new movie.
@@ -583,11 +569,7 @@ const AdminPage: React.FC = () => {
         open={isTheaterDialogOpen}
         onOpenChange={() => setTheaterDialogOpen(!isTheaterDialogOpen)}
       >
-        <DialogTrigger asChild>
-          <Button onClick={handleTheaterDialogOpen} className="bg-green-600">
-            Add Theater
-          </Button>
-        </DialogTrigger>
+        <DialogTrigger asChild></DialogTrigger>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Add New Theater</DialogTitle>
@@ -596,7 +578,7 @@ const AdminPage: React.FC = () => {
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
-          <input
+            <input
               id="name"
               type="text"
               placeholder="Theater Name"
@@ -639,11 +621,7 @@ const AdminPage: React.FC = () => {
         open={isShowtimeDialogOpen}
         onOpenChange={() => setTheaterDialogOpen(!isShowtimeDialogOpen)}
       >
-        <DialogTrigger asChild>
-          <Button onClick={handleshowTimeDialogOpen} className="bg-green-600">
-            Add ShowTime
-          </Button>
-        </DialogTrigger>
+        <DialogTrigger asChild></DialogTrigger>
         <DialogContent>
           <DialogHeader>
             <DialogDescription>
@@ -651,7 +629,7 @@ const AdminPage: React.FC = () => {
             </DialogDescription>
           </DialogHeader>
           <div className="flex flex-col space-y-4">
-          <select
+            <select
               id="movieId"
               value={showtimeDetails.movieId}
               onChange={handleShowtimeInputChange}
@@ -707,10 +685,15 @@ const AdminPage: React.FC = () => {
 
           <DialogFooter>
             <Button onClick={handleShowtimeDialogClose}>Add Showtime</Button>
+            <Button
+              onClick={() => setShowtimeDialogOpen(false)}
+              className="bg-red-600"
+            >
+              Cancel
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
-      <UserButton />
     </div>
   );
 };
