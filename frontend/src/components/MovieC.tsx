@@ -6,6 +6,7 @@ import {
     CardHeader,
     CardTitle,
   } from "./ui/card";
+import { useNavigate } from "react-router-dom";
   
   interface MovieCardProps {
     title: string;
@@ -13,6 +14,7 @@ import {
     startTime: string;
     endTime: string;
     image: string;
+    price: number;
     id: number;
   }
   
@@ -22,11 +24,22 @@ import {
     startTime,
     endTime,
     image,
+    price,
     id
   }: MovieCardProps) => {
+    const navigate = useNavigate();
     const handleBookSeat = () => {
-      // Perform your operation with the `id` here
-      console.log(`Performing operation for movie ID: ${id}`);
+      navigate('/seats', {
+        state: {
+          title,
+          description,
+          startTime,
+          endTime,
+          image,
+          price,
+          id
+        }
+      });
     };
   
     return (

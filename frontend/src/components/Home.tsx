@@ -1,12 +1,9 @@
 import { useEffect, useState } from "react";
 import CarouselCom from "./Carousel";
 import MovieC from "./MovieC";
-import { Button } from "./ui/button";
-import { useNavigate } from "react-router-dom";
 import { useClerk } from "@clerk/clerk-react";
 
 const Home = () => {
-  const navigate = useNavigate();
   const clerk = useClerk();
   const { user } = clerk;
   const firstName = user?.firstName || "John";
@@ -110,24 +107,18 @@ const Home = () => {
           {movies.map((movie) => (
             <div key={movie.id} className="flex-shrink-0">
               <MovieC
-                id={movie.id}
+                id={movie.showtimeId}
                 title={movie.movieTitle}
                 description={movie.description}
                 startTime={movie.startTime}
                 endTime={movie.endTime}
                 image={movie.posterUrl}
+                price={movie.price}
               />
             </div>
           ))}
         </div>
       </div>
-      <Button
-        onClick={() => {
-          navigate("/admin");
-        }}
-      >
-        AdminPage
-      </Button>
     </div>
   );
 };
