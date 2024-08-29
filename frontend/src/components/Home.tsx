@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import CarouselCom from "./Carousel";
 import MovieC from "./MovieC";
 import { useClerk } from "@clerk/clerk-react";
+import Footer from "./Footer";
 
 const Home = () => {
   const clerk = useClerk();
@@ -101,8 +102,13 @@ const Home = () => {
   if (error) return <div>Error: {error}</div>;
   return (
     <div className="flex flex-col min-h-screen">
+      <div className="text-white p-4 text-center">
+        <h2 className="text-2xl font-bold mb-2">Hello, {firstName}!</h2>
+        <p className="text-lg">Get ready for an amazing cinematic journey.</p>
+      </div>
       <CarouselCom />
       <div className="flex-1 p-4">
+      <h2 className="text-2xl font-bold mb-4 text-center text-white">Featured Movies</h2>
         <div className="flex flex-wrap gap-4 justify-center">
           {movies.map((movie) => (
             <div key={movie.id} className="flex-shrink-0">
@@ -119,6 +125,7 @@ const Home = () => {
           ))}
         </div>
       </div>
+      <Footer />
     </div>
   );
 };

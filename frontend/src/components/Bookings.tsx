@@ -1,23 +1,64 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 
 interface Booking {
-  movieTitle: string;
-  date: string;
-  seatNumber: string;
+  theatreName: string;
+  movieName: string;
+  seats: string[];
 }
 
 const BookingsPage: React.FC = () => {
-  const bookings: Booking[] = [
-    { movieTitle: 'Inception', date: '2024-08-15', seatNumber: 'A12' },
-    { movieTitle: 'The Matrix', date: '2024-08-20', seatNumber: 'B07' },
-    { movieTitle: 'Interstellar', date: '2024-08-25', seatNumber: 'C05' },
-    { movieTitle: 'Avatar', date: '2024-09-01', seatNumber: 'D10' },
-    { movieTitle: 'The Dark Knight', date: '2024-09-05', seatNumber: 'E08' },
-    { movieTitle: 'Forrest Gump', date: '2024-09-10', seatNumber: 'F04' },
-    { movieTitle: 'Pulp Fiction', date: '2024-09-15', seatNumber: 'G03' },
-    { movieTitle: 'Fight Club', date: '2024-09-20', seatNumber: 'H06' },
-    { movieTitle: 'The Shawshank Redemption', date: '2024-09-25', seatNumber: 'I11' },
-  ];
+  const [bookings, setBookings] = useState<Booking[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const getCookie = (name: string): string | null => {
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) {
+      return parts.pop()?.split(";").shift() || null;
+    }
+    return null;
+  };
+
+  useEffect(() => {
+    const fetchBookings = async () => {
+      const sessionCookie = getCookie("__session");
+
+      if (!sessionCookie) {
+        setError("You are not logged in");
+        setLoading(false);
+        return;
+      }
+
+      try {
+        const response = await fetch('https://movies-backend.aayush0325.workers.dev/api/v1/users/bookings', {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${sessionCookie}`,
+          },
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          console.log(data);
+          setBookings(data.bookings);
+        } else {
+          const errorData = await response.json();
+          setError(errorData.message);
+        }
+      } catch (error) {
+        setError("Failed to fetch bookings.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchBookings();
+  }, []);
+
+  if (loading) return <div className="text-white text-center">Loading...</div>;
+  if (error) return <div className="text-red-500 text-center">Error: {error}</div>;
 
   return (
     <div className="bg-gray-800 text-white p-4">
@@ -42,9 +83,9 @@ const BookingsPage: React.FC = () => {
           <ul className="space-y-4 custom-scrollbar">
             {bookings.map((booking, index) => (
               <li key={index} className="bg-gray-900 p-4 rounded-lg shadow-md">
-                <h2 className="text-xl font-semibold">{booking.movieTitle}</h2>
-                <p className="text-sm text-gray-300">Date: {booking.date}</p>
-                <p className="text-sm text-gray-300">Seat Number: {booking.seatNumber}</p>
+                <h2 className="text-xl font-semibold">{booking.movieName}</h2>
+                <p className="text-sm text-gray-300">Theatre: {booking.theatreName}</p>
+                <p className="text-sm text-gray-300">Seats: {booking.seats.join(', ')}</p>
               </li>
             ))}
           </ul>

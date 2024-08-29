@@ -7,11 +7,9 @@ import {
 } from "./ui/carousel";
 
 const imageUrls = [
-  "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQkIfDPcmuFr_XvXNuxvENzzFNR9kS2F9iKLw&s",
-  "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQkIfDPcmuFr_XvXNuxvENzzFNR9kS2F9iKLw&s",
-  "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQkIfDPcmuFr_XvXNuxvENzzFNR9kS2F9iKLw&s",
-  "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQkIfDPcmuFr_XvXNuxvENzzFNR9kS2F9iKLw&s",
-  "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQkIfDPcmuFr_XvXNuxvENzzFNR9kS2F9iKLw&s",
+  "https://img.freepik.com/free-photo/people-s-emotions-cinema_155003-15060.jpg?size=626&ext=jpg&ga=GA1.1.1190508524.1716527152&semt=ais_hybrid",
+  "https://img.freepik.com/free-photo/variety-human-emotions-friends-holding-cola-popcorn-cinema_155003-13580.jpg?t=st=1724926858~exp=1724930458~hmac=99891dd2bd2c72271a80f230272273586acba7882b3b0804d9fc11545f0ae1e5&w=900",
+  "https://img.freepik.com/premium-photo/young-man-watching-scary-film_13339-117710.jpg?w=900",
 ];
 
 const CarouselCom = () => {
