@@ -17,9 +17,7 @@ const SeatBooking: React.FC = () => {
   const [selectedSeats, setSelectedSeats] = useState<Set<string>>(new Set());
   const [bookedSeats, setBookedSeats] = useState<{ seatId: number; seatNumber: string }[]>([]);
   const [seatIdMap, setSeatIdMap] = useState<Map<string, number>>(new Map());
-
-  const rows = Array.from({ length: 10 }, (_, i) => i + 1);
-  const columns = Array.from({ length: 10 }, (_, i) => String.fromCharCode(65 + i));
+  const [seats, setSeats] = useState<{ seatId: number; seatNumber: string; isBooked: boolean }[]>([]);
 
   function getCookie(name: string): string | null {
     const value = `; ${document.cookie}`;
@@ -31,7 +29,6 @@ const SeatBooking: React.FC = () => {
   }
 
   useEffect(() => {
-    console.log(movie.id)
     const fetchBookedSeats = async () => {
       const sessionCookie = getCookie("__session");
 
@@ -54,8 +51,13 @@ const SeatBooking: React.FC = () => {
 
         if (response.ok) {
           const data = await response.json();
-          console.log(data);
-          const booked = data.seats
+          
+          // Sort seats by their ID
+          const sortedSeats = data.seats.sort((a: any, b: any) => a.seatId - b.seatId);
+          
+          setSeats(sortedSeats);
+
+          const booked = sortedSeats
             .filter((seat: any) => seat.isBooked)
             .map((seat: any) => ({
               seatId: seat.seatId,
@@ -65,7 +67,7 @@ const SeatBooking: React.FC = () => {
           setBookedSeats(booked);
 
           const seatMap = new Map<string, number>();
-          data.seats.forEach((seat: any) => {
+          sortedSeats.forEach((seat: any) => {
             seatMap.set(seat.seatNumber, seat.seatId);
           });
           setSeatIdMap(seatMap);
@@ -109,62 +111,49 @@ const SeatBooking: React.FC = () => {
   };
 
   return (
-    <div className="p-8 max-w-6xl mx-auto bg-gray-900 text-white rounded-lg shadow-2xl">
-      <h1 className="text-3xl font-bold mb-6 text-center">
-        {movie.title} - Seat Booking
-      </h1>
-      <h1 className="text-xl font-bold mb-6 text-center">
-        Price: {movie.price} INR Per Seat
-      </h1>
-      <div className="overflow-auto">
+    <div className="p-8 max-w-6xl mx-auto bg-gray-900 text-white rounded-lg shadow-2xl min-h-screen">
+      <h1 className="text-3xl font-bold mb-6 text-center">{movie.title} - Seat Booking</h1>
+      <h2 className="text-xl font-semibold mb-6 text-center">Price: {movie.price} INR Per Seat</h2>
+
+      <div className="overflow-x-auto mb-8">
         <div className="flex flex-col items-center">
-          <div className="grid grid-cols-[repeat(11,_minmax(0,_1fr))] gap-2 text-center">
-            <div className="w-10 h-10"></div>
-            {columns.map((col) => (
-              <div key={col} className="text-xs font-semibold text-gray-300">
-                {col}
-              </div>
-            ))}
-            {rows.map((row) => (
-              <React.Fragment key={row}>
-                <div className="text-xs font-semibold text-gray-300">{row}</div>
-                {columns.map((col) => {
-                  const seat = `${col}${row}`;
-                  const isBooked = bookedSeats.some((bookedSeat) => bookedSeat.seatNumber === seat);
-                  const isSelected = selectedSeats.has(seat);
-                  return (
-                    <button
-                      key={seat}
-                      className={`w-10 h-10 rounded-full flex items-center justify-center text-xs font-semibold ${
-                        isBooked
-                          ? "bg-red-600 cursor-not-allowed"
-                          : isSelected
-                          ? "bg-green-500"
-                          : "bg-gray-600 hover:bg-gray-500"
-                      } text-white ${
-                        isBooked
-                          ? "opacity-70"
-                          : "transition-colors duration-300"
-                      }`}
-                      onClick={() => !isBooked && handleSeatClick(seat)}
-                      disabled={isBooked}
-                    >
-                      {seat}
-                    </button>
-                  );
-                })}
-              </React.Fragment>
-            ))}
+          <div className="grid grid-cols-10 gap-2">
+            {seats.map((seat) => {
+              const isBooked = seat.isBooked;
+              const isSelected = selectedSeats.has(seat.seatNumber);
+              return (
+                <button
+                  key={seat.seatNumber}
+                  className={`w-10 h-10 rounded-full flex items-center justify-center text-xs font-semibold ${
+                    isBooked
+                      ? "bg-red-600 cursor-not-allowed"
+                      : isSelected
+                      ? "bg-green-500"
+                      : "bg-gray-600 hover:bg-gray-500"
+                  } text-white ${
+                    isBooked
+                      ? "opacity-70"
+                      : "transition-colors duration-300"
+                  }`}
+                  onClick={() => !isBooked && handleSeatClick(seat.seatNumber)}
+                  disabled={isBooked}
+                >
+                  {seat.seatNumber}
+                </button>
+              );
+            })}
           </div>
         </div>
       </div>
 
-      <button
-        onClick={handleSubmit}
-        className="bg-yellow-500 text-gray-800 px-6 py-2 rounded-full hover:bg-yellow-600 transition-colors duration-300 w-full mt-8"
-      >
-        Submit
-      </button>
+      <div className="flex justify-center mb-8">
+        <button
+          onClick={handleSubmit}
+          className="bg-yellow-500 text-gray-800 px-6 py-2 rounded-full hover:bg-yellow-600 transition-colors duration-300"
+        >
+          Submit
+        </button>
+      </div>
     </div>
   );
 };
