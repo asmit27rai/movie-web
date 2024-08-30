@@ -11,8 +11,10 @@ import { cn } from "@/lib/utils";
 import { UserButton } from "@clerk/clerk-react";
 import { FaDollarSign } from "react-icons/fa";
 import BookingsPage from "./Bookings";
+import { useNavigate } from "react-router-dom";
 
 const Navbar = () => {
+  const navigate = useNavigate();
   const [totalMoney, setTotalMoney] = useState(0);
   function getCookie(name: string): string | null {
     const value = `; ${document.cookie}`;
@@ -76,8 +78,10 @@ const Navbar = () => {
           </NavigationMenuItem>
           <NavigationMenuItem>
             <NavigationMenuLink
-              className="text-white text-sm md:text-base lg:text-lg font-semibold hover:text-orange-500 transition duration-300"
-              href="/contact"
+              className="text-white text-sm md:text-base lg:text-lg font-semibold hover:text-orange-500 transition duration-300 cursor-pointer"
+              onClick={()=>{
+                navigate('/contact')
+              }}
             >
               Contact Us
             </NavigationMenuLink>

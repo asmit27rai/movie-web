@@ -70,6 +70,7 @@ const Home = () => {
       if (!sessionCookie) {
         console.error("User is not logged in");
         setLoading(false);
+        console.log(loading)
         return;
       }
 
@@ -94,6 +95,7 @@ const Home = () => {
           const errorData = await response.json();
           console.error("Error fetching showtimes:", errorData.message);
           setError(errorData.message);
+          console.log(error)
         }
       } catch (error) {
         console.error("An error occurred while fetching showtimes.", error);
@@ -196,7 +198,7 @@ const Home = () => {
                 description={movie.description}
                 startTime={movie.startTime}
                 endTime={movie.endTime}
-                image={movie.posterUrl}
+                image={movie.posterUrl || "https://media.comicbook.com/files/img/default-movie.png"}
                 price={movie.price}
               />
             </div>

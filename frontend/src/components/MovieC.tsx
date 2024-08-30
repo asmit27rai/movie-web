@@ -45,7 +45,7 @@ import { useNavigate } from "react-router-dom";
     return (
       <Card className="w-64 sm:w-72 md:w-80 bg-gray-900 text-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300 flex flex-col">
         <img
-          src={image}
+          src={image || "https://media.comicbook.com/files/img/default-movie.png"}
           alt="Movie Poster"
           className="w-full h-36 sm:h-40 object-cover transform scale-100 hover:scale-105 transition-transform duration-300"
         />
